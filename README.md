@@ -1,2 +1,2 @@
 # Cloud_Project
- Image file and required documents for Term Project
+People can access this repository through the link, then they can check the Solution image, documents and source code for our Term Project.
