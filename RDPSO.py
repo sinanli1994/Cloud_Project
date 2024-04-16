@@ -3,8 +3,11 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 
+
 class Task:
-    def __init__(self, id, execution_time, data_size, dependencies=[]):
+    def __init__(self, id, execution_time, data_size, dependencies=None):
+        if dependencies is None:
+            dependencies = []
         self.id = id
         self.execution_time = execution_time
         self.data_size = data_size
@@ -12,6 +15,7 @@ class Task:
 
     def __repr__(self):
         return f"Task(id={self.id}, exec_time={self.execution_time}, data_size={self.data_size})"
+
 
 class ServiceInstance:
     def __init__(self, id, cost_per_hour, data_transfer_rate):
@@ -21,6 +25,7 @@ class ServiceInstance:
 
     def __repr__(self):
         return f"Service(id={self.id}, cost/hr={self.cost_per_hour}, data_rate={self.data_transfer_rate})"
+
 
 class Particle:
     def __init__(self, tasks, services):
@@ -41,12 +46,14 @@ class Particle:
         for task in self.position:
             self.position[task] = max(self.velocity[task], key=self.velocity[task].get, default=self.position[task])
 
+
 def calculate_cost(particle, tasks):
     total_cost = 0
     for task in tasks:
         service = particle.position[task]
         execution_cost = task.execution_time * service.cost_per_hour
-        data_transfer_cost = sum(tasks[dep].data_size * service.data_transfer_rate for dep in task.dependencies if particle.position[tasks[dep]] != service)
+        data_transfer_cost = sum(tasks[dep].data_size * service.data_transfer_rate for dep in task.dependencies if
+                                 particle.position[tasks[dep]] != service)
         total_cost += execution_cost + data_transfer_cost
     return total_cost
 
@@ -88,7 +95,8 @@ def visualize_solution(tasks, services, best_solution, best_cost, folder_path):
     plt.title('Task to Service Assignment', size=15)
 
     # Display the best cost in the plot
-    plt.annotate(f"Best Cost: {best_cost}", xy=(0.5, -0.1), xycoords="axes fraction", ha='center', va='center', fontsize=12, bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1))
+    plt.annotate(f"Best Cost: {best_cost}", xy=(0.5, -0.1), xycoords="axes fraction", ha='center', va='center',
+                 fontsize=12, bbox=dict(boxstyle="round,pad=0.3", fc="yellow", ec="black", lw=1))
 
     # Adjust the plot margins and space specifically for the left and right
     plt.margins(0.2)  # Add 20% more space on the left and right sides
@@ -96,6 +104,7 @@ def visualize_solution(tasks, services, best_solution, best_cost, folder_path):
     # Save the figure with extra space for the labels
     plt.savefig(f"{folder_path}/task_service_mapping.png", bbox_inches="tight")
     plt.show()
+
 
 def rd_pso(tasks, services, num_particles=10, max_iters=100, output_folder='output'):
     particles = [Particle(tasks, services) for _ in range(num_particles)]
@@ -123,6 +132,7 @@ def rd_pso(tasks, services, num_particles=10, max_iters=100, output_folder='outp
 
     # Return the best solution and cost from the RDPSO function
     return global_best, global_best_cost
+
 
 # Sample tasks and services for demonstration
 tasks = [
